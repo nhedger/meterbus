@@ -2,7 +2,7 @@
 name                   = "meterbus-wired-datalink"
 description            = "Wired M-Bus datalink primitives and codecs"
 readme                 = "README.md"
-version                = "0.0.1"
+version                = "0.0.2"
 edition.workspace      = true
 rust-version           = "1.85"
 authors.workspace      = true

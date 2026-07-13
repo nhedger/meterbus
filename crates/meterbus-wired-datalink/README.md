@@ -30,7 +30,7 @@ Add the crate without any features for a `no_std`, allocation-free build:
 
 ```toml
 [dependencies]
-meterbus-wired-datalink = "0.0.1"
+meterbus-wired-datalink = "0.0.2"
 ```
 
 To use convenience methods that return vectors, enable the optional `alloc`
@@ -38,7 +38,7 @@ feature:
 
 ```toml
 [dependencies]
-meterbus-wired-datalink = { version = "0.0.1", features = ["alloc"] }
+meterbus-wired-datalink = { version = "0.0.2", features = ["alloc"] }
 ```
 
 ## License
