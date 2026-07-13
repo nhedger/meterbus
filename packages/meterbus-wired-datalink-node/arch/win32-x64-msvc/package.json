@@ -1,0 +1,29 @@
+{
+	"name": "@meterbus/wired-datalink-node-win32-x64-msvc",
+	"version": "0.0.0",
+	"description": "Native wired M-Bus data-link frame codecs for Node.js",
+	"main": "meterbus-wired-datalink.win32-x64-msvc.node",
+	"files": [
+		"meterbus-wired-datalink.win32-x64-msvc.node"
+	],
+	"cpu": [
+		"x64"
+	],
+	"os": [
+		"win32"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nhedger/meterbus.git",
+		"directory": "packages/meterbus-wired-datalink-node/arch/win32-x64-msvc"
+	},
+	"homepage": "https://github.com/nhedger/meterbus/tree/main/packages/meterbus-wired-datalink-node/arch/win32-x64-msvc",
+	"license": "MIT OR Apache-2.0",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
+}

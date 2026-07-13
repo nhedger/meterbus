@@ -1,0 +1,27 @@
+[workspace]
+resolver = "3"
+members  = [
+    "crates/meterbus-wired-datalink",
+    "crates/meterbus-wired-datalink-node",
+    "crates/meterbus-wired-datalink-python",
+    "crates/meterbus-wired-datalink-wasm",
+]
+
+[workspace.package]
+edition      = "2024"
+rust-version = "1.88"
+authors      = ["Nicolas HEDGER"]
+license      = "MIT OR Apache-2.0"
+repository   = "https://github.com/nhedger/meterbus"
+
+[workspace.lints.rust]
+missing_docs = "warn"
+unsafe_code  = "forbid"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(coverage_nightly)"] }
+
+[workspace.lints.clippy]
+correctness = "deny"
+suspicious  = "warn"
+style       = "warn"
+complexity  = "warn"
+perf        = "warn"

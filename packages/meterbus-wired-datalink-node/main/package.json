@@ -1,0 +1,87 @@
+{
+	"name": "@meterbus/wired-datalink-node",
+	"version": "0.0.0",
+	"description": "Native wired M-Bus data-link frame codecs for Node.js",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist/index.d.ts",
+		"dist/index.js",
+		"examples",
+		"README.md"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nhedger/meterbus.git",
+		"directory": "packages/meterbus-wired-datalink-node/main"
+	},
+	"homepage": "https://github.com/nhedger/meterbus/tree/main/packages/meterbus-wired-datalink-node/main",
+	"license": "MIT OR Apache-2.0",
+	"keywords": [
+		"m-bus",
+		"metering",
+		"napi-rs",
+		"node-addon",
+		"protocol"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"optionalDependencies": {
+		"@meterbus/wired-datalink-node-darwin-arm64": "0.0.0",
+		"@meterbus/wired-datalink-node-darwin-x64": "0.0.0",
+		"@meterbus/wired-datalink-node-linux-arm64-gnu": "0.0.0",
+		"@meterbus/wired-datalink-node-linux-arm64-musl": "0.0.0",
+		"@meterbus/wired-datalink-node-linux-x64-gnu": "0.0.0",
+		"@meterbus/wired-datalink-node-linux-x64-musl": "0.0.0",
+		"@meterbus/wired-datalink-node-win32-arm64-msvc": "0.0.0",
+		"@meterbus/wired-datalink-node-win32-x64-msvc": "0.0.0"
+	},
+	"scripts": {
+		"assemble": "node scripts/assemble-artifacts.ts",
+		"build": "pnpm run build:native && pnpm run build:js",
+		"build:debug": "pnpm run build:native:debug && pnpm run build:js",
+		"build:js": "tsdown",
+		"build:native": "napi build --manifest-path ../../../crates/meterbus-wired-datalink-node/Cargo.toml --package-json-path package.json --output-dir .napi --platform --release --esm",
+		"build:native:debug": "napi build --manifest-path ../../../crates/meterbus-wired-datalink-node/Cargo.toml --package-json-path package.json --output-dir .napi --platform --esm",
+		"test": "pnpm run typecheck && vitest run",
+		"test:coverage": "pnpm run typecheck && vitest run --coverage",
+		"typecheck": "tsc --noEmit && tsc --project examples/tsconfig.json",
+		"version:reset": "node scripts/set-package-version.ts --reset",
+		"version:set": "node scripts/set-package-version.ts"
+	},
+	"napi": {
+		"binaryName": "meterbus-wired-datalink",
+		"npmClient": "npm",
+		"packageName": "@meterbus/wired-datalink-node",
+		"targets": [
+			"x86_64-apple-darwin",
+			"aarch64-apple-darwin",
+			"x86_64-unknown-linux-gnu",
+			"aarch64-unknown-linux-gnu",
+			"x86_64-unknown-linux-musl",
+			"aarch64-unknown-linux-musl",
+			"x86_64-pc-windows-msvc",
+			"aarch64-pc-windows-msvc"
+		]
+	},
+	"devDependencies": {
+		"@napi-rs/cli": "3.7.3",
+		"@types/node": "24.13.3",
+		"@vitest/coverage-v8": "4.1.10",
+		"tsdown": "0.22.7",
+		"typescript": "5.9.3",
+		"vitest": "4.1.10"
+	}
+}

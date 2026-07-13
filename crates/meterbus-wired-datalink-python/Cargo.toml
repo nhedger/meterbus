@@ -1,0 +1,29 @@
+[package]
+name = "meterbus-wired-datalink-python"
+version = "0.0.0"
+readme = "README.md"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+name = "_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+meterbus-wired-datalink = { path = "../meterbus-wired-datalink", features = ["alloc"] }
+pyo3 = { version = "0.29.0", features = ["abi3-py310", "extension-module"] }
+
+[lints.rust]
+missing_docs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(coverage_nightly)"] }
+
+[lints.clippy]
+correctness = "deny"
+suspicious = "warn"
+style = "warn"
+complexity = "warn"
+perf = "warn"

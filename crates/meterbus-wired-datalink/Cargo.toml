@@ -1,0 +1,36 @@
+[package]
+name                   = "meterbus-wired-datalink"
+description            = "Wired M-Bus datalink primitives and codecs"
+readme                 = "README.md"
+version                = "0.0.1"
+edition.workspace      = true
+rust-version           = "1.85"
+authors.workspace      = true
+license.workspace      = true
+repository.workspace   = true
+documentation          = "https://docs.rs/meterbus-wired-datalink"
+homepage               = "https://github.com/nhedger/meterbus/tree/main/crates/meterbus-wired-datalink"
+keywords               = ["m-bus", "metering", "protocol", "embedded", "no-std"]
+categories             = ["embedded", "network-programming", "no-std", "parser-implementations"]
+
+[features]
+default = []
+alloc   = []
+
+[package.metadata.docs.rs]
+all-features = true
+
+[[example]]
+name              = "request_data_alloc"
+required-features = ["alloc"]
+
+[[example]]
+name              = "decode_exact_alloc"
+required-features = ["alloc"]
+
+[[example]]
+name              = "decode_stream_alloc"
+required-features = ["alloc"]
+
+[lints]
+workspace = true

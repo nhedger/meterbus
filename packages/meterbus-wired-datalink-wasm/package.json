@@ -1,0 +1,58 @@
+{
+	"name": "@meterbus/wired-datalink-wasm",
+	"version": "0.0.0",
+	"description": "WebAssembly wired M-Bus data-link frame codecs",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist/index.d.ts",
+		"dist/index.js",
+		"dist/index_bg.wasm",
+		"examples",
+		"README.md"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nhedger/meterbus.git",
+		"directory": "packages/meterbus-wired-datalink-wasm"
+	},
+	"homepage": "https://github.com/nhedger/meterbus/tree/main/packages/meterbus-wired-datalink-wasm",
+	"license": "MIT OR Apache-2.0",
+	"keywords": [
+		"m-bus",
+		"metering",
+		"protocol",
+		"wasm",
+		"webassembly"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"scripts": {
+		"build": "wasm-pack build ../../crates/meterbus-wired-datalink-wasm --target web --release --out-dir ../../packages/meterbus-wired-datalink-wasm/.wasm --out-name index --no-pack && tsdown",
+		"postpublish": "node scripts/set-package-version.ts --reset",
+		"prepublishOnly": "pnpm run build",
+		"test": "pnpm run typecheck && vitest run",
+		"test:coverage": "pnpm run typecheck && vitest run --coverage",
+		"typecheck": "tsc --noEmit && tsc --project examples/tsconfig.json"
+	},
+	"devDependencies": {
+		"@types/node": "24.13.3",
+		"@vitest/coverage-v8": "4.1.10",
+		"tsdown": "0.22.7",
+		"typescript": "5.9.3",
+		"vitest": "4.1.10",
+		"wasm-pack": "0.15.0"
+	}
+}

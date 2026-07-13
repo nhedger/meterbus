@@ -1,0 +1,32 @@
+[package]
+name = "meterbus-wired-datalink-node"
+version = "0.1.0"
+readme = "README.md"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+meterbus-wired-datalink = { path = "../meterbus-wired-datalink", features = ["alloc"] }
+napi = "3.10.4"
+napi-derive = "3.5.10"
+
+[build-dependencies]
+napi-build = "2.3.2"
+
+[lints.rust]
+missing_docs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(coverage_nightly)"] }
+
+[lints.clippy]
+correctness = "deny"
+suspicious = "warn"
+style = "warn"
+complexity = "warn"
+perf = "warn"

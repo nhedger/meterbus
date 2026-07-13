@@ -1,0 +1,193 @@
+name: Publish Meterbus Wired Datalink for Node
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PACKAGE_GROUP: packages/meterbus-wired-datalink-node
+  MAIN_DIR: packages/meterbus-wired-datalink-node/main
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: x86_64-apple-darwin
+            build_args: ""
+            link_with_zig: false
+          - os: macos-14
+            target: aarch64-apple-darwin
+            build_args: ""
+            link_with_zig: false
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            build_args: ""
+            link_with_zig: false
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-gnu
+            build_args: --use-napi-cross
+            link_with_zig: false
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+            build_args: --cross-compile
+            link_with_zig: true
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-musl
+            build_args: --cross-compile
+            link_with_zig: true
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+            build_args: ""
+            link_with_zig: false
+          - os: windows-2022
+            target: aarch64-pc-windows-msvc
+            build_args: ""
+            link_with_zig: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version-file: .node-version
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Set up Zig
+        uses: mlugg/setup-zig@v2
+        if: matrix.link_with_zig
+
+      - name: Restore Rust build cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set release version of main package
+        run: pnpm run version:set
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Build native addon
+        shell: bash
+        run: |
+          pnpm exec napi build \
+            --manifest-path ../../../crates/meterbus-wired-datalink-node/Cargo.toml \
+            --package-json-path package.json \
+            --output-dir "$RUNNER_TEMP/bindings" \
+            --target "${{ matrix.target }}" \
+            --platform \
+            --release \
+            --esm \
+            ${{ matrix.build_args }}
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Upload native addon
+        uses: actions/upload-artifact@v7
+        with:
+          name: bindings-${{ matrix.target }}
+          path: ${{ runner.temp }}/bindings/*.node
+          if-no-files-found: error
+
+      - name: Upload JavaScript loader
+        uses: actions/upload-artifact@v7
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        with:
+          name: node-loader
+          path: |
+            ${{ runner.temp }}/bindings/index.js
+            ${{ runner.temp }}/bindings/index.d.ts
+          if-no-files-found: error
+
+  publish:
+    name: Publish npm packages
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+          scope: "@meterbus"
+
+      - name: Update npm
+        run: npm install --global npm@latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download native addons
+        uses: actions/download-artifact@v8
+        with:
+          pattern: bindings-*
+          path: ${{ runner.temp }}/bindings
+          merge-multiple: true
+
+      - name: Download JavaScript loader
+        uses: actions/download-artifact@v8
+        with:
+          name: node-loader
+          path: ${{ runner.temp }}/loader
+
+      - name: Set release version
+        run: pnpm run version:set
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Assemble packages
+        run: >-
+          node scripts/assemble-artifacts.ts
+          --artifacts "$RUNNER_TEMP/bindings"
+          --loader "$RUNNER_TEMP/loader"
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Build JavaScript package
+        run: pnpm run build:js
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Test assembled package
+        run: pnpm run test
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Verify package contents
+        shell: bash
+        run: |
+          for package_dir in arch/* main; do
+            npm pack "$package_dir" --dry-run --json > /dev/null
+          done
+        working-directory: ${{ env.PACKAGE_GROUP }}
+
+      - name: Publish architecture and main packages
+        shell: bash
+        run: |
+          for package_dir in arch/*; do
+            npm publish "$package_dir" --access public --ignore-scripts
+          done
+          npm publish main --access public --ignore-scripts
+        working-directory: ${{ env.PACKAGE_GROUP }}

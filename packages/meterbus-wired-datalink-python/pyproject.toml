@@ -1,0 +1,70 @@
+[build-system]
+requires = ["maturin>=1.14,<2"]
+build-backend = "maturin"
+
+[project]
+name = "meterbus-wired-datalink"
+dynamic = ["version"]
+description = "Native wired M-Bus data-link frame codecs for Python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT OR Apache-2.0"
+authors = [{ name = "Nicolas HEDGER" }]
+keywords = ["m-bus", "metering", "protocol", "pyo3", "rust"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Rust",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/nhedger/meterbus/tree/main/packages/meterbus-wired-datalink-python"
+Repository = "https://github.com/nhedger/meterbus"
+
+[dependency-groups]
+dev = [
+    "maturin>=1.14,<2",
+    "mypy>=1.19,<2",
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+    "ruff>=0.15,<0.16",
+]
+
+[tool.maturin]
+manifest-path = "../../crates/meterbus-wired-datalink-python/Cargo.toml"
+module-name = "meterbus_wired_datalink._native"
+python-source = "src"
+strip = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+cache_dir = "../../.cache/pytest"
+addopts = "--cov=meterbus_wired_datalink --cov-branch --cov-report=term-missing"
+
+[tool.coverage.run]
+data_file = "../../.cache/python-coverage"
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.mypy]
+strict = true
+files = ["examples", "scripts", "src", "tests"]
+cache_dir = "../../.cache/mypy"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+cache-dir = "../../.cache/ruff"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
