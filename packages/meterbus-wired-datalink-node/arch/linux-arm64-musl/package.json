@@ -4,7 +4,9 @@
 	"description": "Native wired M-Bus data-link frame codecs for Node.js",
 	"main": "meterbus-wired-datalink.linux-arm64-musl.node",
 	"files": [
-		"meterbus-wired-datalink.linux-arm64-musl.node"
+		"meterbus-wired-datalink.linux-arm64-musl.node",
+		"LICENSE-APACHE",
+		"LICENSE-MIT"
 	],
 	"cpu": [
 		"arm64"

@@ -27,6 +27,7 @@ if (values.artifacts === undefined || values.loader === undefined) {
 
 const mainRoot = resolve(import.meta.dirname, "..");
 const packageGroup = resolve(mainRoot, "..");
+const workspaceRoot = resolve(packageGroup, "../..");
 const artifactsRoot = resolve(values.artifacts);
 const loaderRoot = resolve(values.loader);
 const expectedBinaries = targets.map(
@@ -44,9 +45,15 @@ if (actualBinaries.join("\n") !== [...expectedBinaries].sort().join("\n")) {
 
 for (const target of targets) {
 	const binary = `${binaryName}.${target}.node`;
+	const packageRoot = resolve(packageGroup, "arch", target);
 	await copyFile(
 		resolve(artifactsRoot, binary),
-		resolve(packageGroup, "arch", target, binary),
+		resolve(packageRoot, binary),
+	);
+	await Promise.all(
+		["LICENSE-APACHE", "LICENSE-MIT"].map((file) =>
+			copyFile(resolve(workspaceRoot, file), resolve(packageRoot, file)),
+		),
 	);
 }
 
@@ -57,5 +64,12 @@ await Promise.all(
 		copyFile(resolve(loaderRoot, file), resolve(napiRoot, file)),
 	),
 );
+await Promise.all(
+	["LICENSE-APACHE", "LICENSE-MIT"].map((file) =>
+		copyFile(resolve(workspaceRoot, file), resolve(mainRoot, file)),
+	),
+);
 
-console.log(`assembled ${targets.length} native packages and the JavaScript loader`);
+console.log(
+	`assembled ${targets.length} native packages, the JavaScript loader, and licenses`,
+);
