@@ -179,7 +179,7 @@ jobs:
         shell: bash
         run: |
           for package_dir in arch/* main; do
-            npm pack "$package_dir" --dry-run --json > /dev/null
+            npm pack "./$package_dir" --dry-run --json > /dev/null
           done
         working-directory: ${{ env.PACKAGE_GROUP }}
 
@@ -187,7 +187,7 @@ jobs:
         shell: bash
         run: |
           for package_dir in arch/*; do
-            npm publish "$package_dir" --access public --ignore-scripts
+            npm publish "./$package_dir" --access public --ignore-scripts
           done
-          npm publish main --access public --ignore-scripts
+          npm publish ./main --access public --ignore-scripts
         working-directory: ${{ env.PACKAGE_GROUP }}
