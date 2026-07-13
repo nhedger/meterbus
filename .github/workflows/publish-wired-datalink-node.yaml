@@ -80,13 +80,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Set release version of main package
-        run: pnpm run version:set
+        run: node scripts/set-package-version.ts --main-only
         working-directory: ${{ env.MAIN_DIR }}
 
       - name: Build native addon
         shell: bash
         run: |
-          pnpm exec napi build \
+          ./node_modules/.bin/napi build \
             --manifest-path ../../../crates/meterbus-wired-datalink-node/Cargo.toml \
             --package-json-path package.json \
             --output-dir "$RUNNER_TEMP/bindings" \
@@ -156,10 +156,6 @@ jobs:
           name: node-loader
           path: ${{ runner.temp }}/loader
 
-      - name: Set release version
-        run: pnpm run version:set
-        working-directory: ${{ env.MAIN_DIR }}
-
       - name: Assemble packages
         run: >-
           node scripts/assemble-artifacts.ts
@@ -173,6 +169,10 @@ jobs:
 
       - name: Test assembled package
         run: pnpm run test
+        working-directory: ${{ env.MAIN_DIR }}
+
+      - name: Set release versions
+        run: node scripts/set-package-version.ts
         working-directory: ${{ env.MAIN_DIR }}
 
       - name: Verify package contents

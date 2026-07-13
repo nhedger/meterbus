@@ -20,7 +20,9 @@ if (cargoVersion === undefined) {
 	throw new Error("could not read the meterbus-wired-datalink crate version");
 }
 
-const version = process.argv.includes("--reset") ? "0.0.0" : cargoVersion;
+const reset = process.argv.includes("--reset");
+const mainOnly = process.argv.includes("--main-only");
+const version = reset ? "0.0.0" : cargoVersion;
 const architectureDirectories = (await readdir(architectureRoot, {
 	withFileTypes: true,
 }))
@@ -34,9 +36,11 @@ for (const directory of architectureDirectories) {
 	const manifest = JSON.parse(
 		await readFile(packagePath, "utf8"),
 	) as PackageManifest;
-	manifest.version = version;
 	architecturePackages.set(manifest.name, version);
-	await writeFile(packagePath, `${JSON.stringify(manifest, null, "\t")}\n`);
+	if (!mainOnly) {
+		manifest.version = version;
+		await writeFile(packagePath, `${JSON.stringify(manifest, null, "\t")}\n`);
+	}
 }
 
 const mainPackagePath = resolve(mainRoot, "package.json");
@@ -44,9 +48,15 @@ const mainManifest = JSON.parse(
 	await readFile(mainPackagePath, "utf8"),
 ) as PackageManifest;
 mainManifest.version = version;
-mainManifest.optionalDependencies = Object.fromEntries(architecturePackages);
+if (!mainOnly) {
+	mainManifest.optionalDependencies = Object.fromEntries(
+		[...architecturePackages.keys()].map((name) => [
+			name,
+			reset ? "workspace:*" : version,
+		]),
+	);
+}
 await writeFile(mainPackagePath, `${JSON.stringify(mainManifest, null, "\t")}\n`);
 
-console.log(
-	`set ${architecturePackages.size + 1} package versions to ${version}`,
-);
+const packageCount = mainOnly ? 1 : architecturePackages.size + 1;
+console.log(`set ${packageCount} package versions to ${version}`);
